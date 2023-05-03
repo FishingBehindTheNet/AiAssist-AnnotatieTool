@@ -1,5 +1,5 @@
 *.JPG
-*.txt
 *.pt
 *.png
 *.onnx
+/Model/**
