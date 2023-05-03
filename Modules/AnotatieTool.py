@@ -7,7 +7,8 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, DataName):
     import base64
     import os
 
-    AiAnnotaties = os.path.join("Data", DataName, "labels")
+    model = YOLO(Model, task='detect')
+    AiAnnotaties = os.path.join("Model", DataName, "labels")
     if not os.path.exists(AiAnnotaties):
         os.makedirs(AiAnnotaties)
 
@@ -19,13 +20,13 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, DataName):
         return "data:image/jpg;base64,"+encoded
     
     def BoxPicker(PlaceHolder):
+        ImageView.bboxes = []
         if AiAssist.value:
             AnnoName = Files[ProgressBar.value].replace(".jpg", ".txt").replace(".JPG", ".txt")
             AnnoLocation = os.path.join(AiAnnotaties, AnnoName)
             if not os.path.exists(AnnoLocation):
-                model = YOLO(Model)
                 ImagePath = os.path.join(ImageMap, Files[ProgressBar.value])
-                model.predict(ImagePath, save_txt=True, conf=0.5, augment=True, exist_ok=True, project="Data", name=DataName)
+                model.predict(ImagePath, save_txt=True, conf=0.25, exist_ok=True, project="Model", name=DataName)
 
             ImageView.bboxes = YoloToWidget(
                 ImageMap = ImageMap,

@@ -6,11 +6,11 @@ def ModelPick(ImageMap, Annotaties):
 
     #Genereert dialoog boxen
     info1 = widgets.HTML(
-        value = "<h3>Model keuze</h3> selecteer het <b>model.pt</b>:"
+        value = "<h3>Model keuze</h3> selecteer het <b>model</b>(getest met .pt en .onnx modelen):"
     )
 
     info2 = widgets.HTML(
-        value = "Input de naam van de dataset. Onder deze naam zullen de voorspellingen opgeslagen worden:"
+        value = "Input de naam van de dataset. Voorspellingen worden opgeslagen onder ./Model/{naam}/labels:"
     )
 
     #Roept een widget aan die fungeert als interface om map locaties aan te vragen
