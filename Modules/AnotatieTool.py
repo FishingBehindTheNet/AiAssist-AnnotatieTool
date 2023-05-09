@@ -137,16 +137,6 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, DataName):
             {ButtonF}Q{ButtonB}  {ButtonF}F{ButtonB}  {ButtonF}E{ButtonB}</td>
             <td>Resize bounding box</td>
         </tr>
-        <tr>
-            <td>{ButtonF}_{ButtonB} {ButtonF}w{ButtonB} {ButtonF}_{ButtonB} {ButtonF}_{ButtonB}<br />
-            {ButtonF}a{ButtonB}  {ButtonF}s{ButtonB}  {ButtonF}d{ButtonB} {ButtonF}_{ButtonB}</td>
-            <td>Move bounding box (Hold {ButtonF}Shift{ButtonB} to increase step size)</td>
-        </tr>
-        <tr>
-            <td>{ButtonF}Q{ButtonB} {ButtonF}_{ButtonB} {ButtonF}E{ButtonB} {ButtonF}R{ButtonB}<br />
-            {ButtonF}_{ButtonB}  {ButtonF}_{ButtonB}  {ButtonF}_{ButtonB} {ButtonF}F{ButtonB}</td>
-            <td>Resize bounding box</td>
-        </tr>
         """
     )
 
