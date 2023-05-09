@@ -7,11 +7,6 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, DataName):
     import base64
     import os
 
-    model = YOLO(Model, task='detect')
-    AiAnnotaties = os.path.join("Model", DataName, "labels")
-    if not os.path.exists(AiAnnotaties):
-        os.makedirs(AiAnnotaties)
-
     #Work around om afbeeldingen zichtbaar te maken
     def encode_image(filepath):
         with open(filepath, 'rb') as f:
@@ -92,12 +87,89 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, DataName):
     )
     BoxPicker("")
 
+    ButtonF = '<kbd><font color="#424a48"><b>'
+    ButtonB = '</b></font></kbd>'
+
+    CheatSheet = widgets.HTML(
+        value = f"""
+        <style>
+        td:first-child {{
+            text-align: center;
+        }}
+        td:last-child {{
+            text-align: left;
+        }}
+        </style>
+
+        <h3>Key bindings</h3> 
+        <table>
+        <tr>
+            <td>{ButtonF}1{ButtonB}-{ButtonF}9{ButtonB}</td>
+            <td>Selecteer label</td>
+        </tr>
+        <tr>
+            <td>{ButtonF}Tab{ButtonB}</td>
+            <td>Volgende bounding box</td>
+        </tr>
+        <tr>
+            <td>{ButtonF}Shift{ButtonB}-{ButtonF}Tab{ButtonB}</td>
+            <td>Vorige bounding box</td>
+        </tr>
+        <tr>
+            <td>{ButtonF}c{ButtonB}</td>
+            <td>Verander label van geselecteerde bounding box</td>
+        </tr>
+        <tr>
+            <td>{ButtonF}Enter{ButtonB}</td>
+            <td>Submit</td>
+        </tr>
+        <tr>
+            <td>{ButtonF} Spatie {ButtonB}</td>
+            <td>Skip</td>
+        </tr>
+        <tr>
+            <td>{ButtonF}w{ButtonB} <br />
+            {ButtonF}a{ButtonB}  {ButtonF}s{ButtonB}  {ButtonF}d{ButtonB}</td>
+            <td>Move bounding box (Hold {ButtonF}Shift{ButtonB} to increase step size)</td>
+        </tr>
+        <tr>
+            <td>{ButtonF}R{ButtonB} <br />
+            {ButtonF}Q{ButtonB}  {ButtonF}F{ButtonB}  {ButtonF}E{ButtonB}</td>
+            <td>Resize bounding box</td>
+        </tr>
+        <tr>
+            <td>{ButtonF}_{ButtonB} {ButtonF}w{ButtonB} {ButtonF}_{ButtonB} {ButtonF}_{ButtonB}<br />
+            {ButtonF}a{ButtonB}  {ButtonF}s{ButtonB}  {ButtonF}d{ButtonB} {ButtonF}_{ButtonB}</td>
+            <td>Move bounding box (Hold {ButtonF}Shift{ButtonB} to increase step size)</td>
+        </tr>
+        <tr>
+            <td>{ButtonF}Q{ButtonB} {ButtonF}_{ButtonB} {ButtonF}E{ButtonB} {ButtonF}R{ButtonB}<br />
+            {ButtonF}_{ButtonB}  {ButtonF}_{ButtonB}  {ButtonF}_{ButtonB} {ButtonF}F{ButtonB}</td>
+            <td>Resize bounding box</td>
+        </tr>
+        """
+    )
+
     #voegt alle widgets samen voor gemakkelijk aanroepen
-    AnnoterenWidget = widgets.VBox([
-        widgets.HBox([Back, AiAssist]),    
-        ImageView,
-        widgets.HBox([ProgressBar, Delete])
-        ], layout=widgets.Layout(width='600px'))
+    if Model:
+        model = YOLO(Model, task='detect')
+        AiAnnotaties = os.path.join("Model", DataName, "labels")
+        if not os.path.exists(AiAnnotaties):
+            os.makedirs(AiAnnotaties)
+
+        AnnoterenWidget = widgets.HBox([widgets.VBox([
+            widgets.HBox([Back, AiAssist]),    
+            ImageView,
+            widgets.HBox([ProgressBar, Delete])], 
+            layout=widgets.Layout(width='600px')), 
+            CheatSheet], layout=widgets.Layout(align_items='center'))
+    else:
+        AnnoterenWidget = widgets.HBox([widgets.VBox([
+            widgets.HBox([Back]),    
+            ImageView,
+            widgets.HBox([ProgressBar, Delete])], 
+            layout=widgets.Layout(width='600px')), 
+            CheatSheet], layout=widgets.Layout(align_items='center'))
 
     def on_button_clicked(PlaceHolder):
         if AiAssist.value:

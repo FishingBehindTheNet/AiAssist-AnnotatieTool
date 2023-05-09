@@ -6,7 +6,7 @@ def ModelPick(ImageMap, Annotaties):
 
     #Genereert dialoog boxen
     info1 = widgets.HTML(
-        value = "<h3>Model keuze</h3> selecteer het <b>model</b>(getest met .pt en .onnx modelen):"
+        value = "<h3>Model keuze</h3> selecteer het <b>model</b> (getest met .pt en .onnx modelen):"
     )
 
     info2 = widgets.HTML(
@@ -34,14 +34,13 @@ def ModelPick(ImageMap, Annotaties):
     #geeft benodigde gegevens door aan de annotatietool
     @submit.on_click
     def SaveAndLaunch(PlaceHolder):
-        if ModelFile.selected_filename and ProjectInput.value:
-            LabelCheck(
-                ImageMap = ImageMap,
-                Annotaties = Annotaties,
-                Model = ModelFile.selected,
-                DataName = ProjectInput.value            
-            )
-            ModelPicker.close()
+        LabelCheck(
+            ImageMap = ImageMap,
+            Annotaties = Annotaties,
+            Model = ModelFile.selected,
+            DataName = ProjectInput.value            
+        )
+        ModelPicker.close()
     
     WiteLine = widgets.HTML("<b></b>")
 
