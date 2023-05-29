@@ -1,4 +1,4 @@
-def LabelCheck(ImageMap, Annotaties, Model, DataName):
+def LabelCheck(ImageMap, Annotaties, Model, ProjectName):
     from Modules.AnotatieTool import Annoteren
     import ipywidgets as widgets
     import os
@@ -54,17 +54,22 @@ def LabelCheck(ImageMap, Annotaties, Model, DataName):
         description = "Start met annoteren",
         button_style = "success"
     )
+
+    Wachtscherm = widgets.HTML(value = "<h3>Laden...</h3>")
+
     #geeft benodigde gegevens door aan de annotatietool
     @Next.on_click
     def SaveAndLaunch(PlaceHolder):
+        LabelCheck.close()
+        display(Wachtscherm)
         Annoteren(
             ImageMap = ImageMap,
             Annotaties = Annotaties,
             Labels = LabelDoc,
             Model = Model,
-            DataName = DataName
-        )
-        LabelCheck.close()
+            ProjectName = ProjectName
+            )
+        Wachtscherm.close()
     
     WiteLine = widgets.HTML(" ")
 

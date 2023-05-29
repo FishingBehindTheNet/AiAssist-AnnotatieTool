@@ -1,4 +1,4 @@
-def Launch(PlaceHolder):
+def Launch():
     from ipyfilechooser import FileChooser
     from Modules.ModelPicker import ModelPick
     import ipywidgets as widgets

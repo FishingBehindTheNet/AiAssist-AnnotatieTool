@@ -1,4 +1,4 @@
-def Annoteren(ImageMap, Annotaties, Labels, Model, DataName):
+def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
     from Modules.LabelConvert import YoloToWidget, WidgetToYolo
     from jupyter_bbox_widget import BBoxWidget
     from ultralytics import YOLO
@@ -21,7 +21,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, DataName):
             AnnoLocation = os.path.join(AiAnnotaties, AnnoName)
             if not os.path.exists(AnnoLocation):
                 ImagePath = os.path.join(ImageMap, Files[ProgressBar.value])
-                model.predict(ImagePath, save_txt=True, conf=0.25, exist_ok=True, project="Model", name=DataName)
+                model.predict(ImagePath, save_txt=True, conf=0.25, exist_ok=True, project=ProjectName, name="Voorspellingen")
 
             ImageView.bboxes = YoloToWidget(
                 ImageMap = ImageMap,
@@ -120,6 +120,10 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, DataName):
             <td>Verander label van geselecteerde bounding box</td>
         </tr>
         <tr>
+            <td>{ButtonF}Delete{ButtonB}</td>
+            <td>verwijder geselecteerde bounding box</td>
+        </tr>
+        <tr>
             <td>{ButtonF}Enter{ButtonB}</td>
             <td>Submit</td>
         </tr>
@@ -140,24 +144,26 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, DataName):
         """
     )
 
+    WiteLine = widgets.HTML(" ")
+
     #voegt alle widgets samen voor gemakkelijk aanroepen
     if Model:
         model = YOLO(Model, task='detect')
-        AiAnnotaties = os.path.join("Model", DataName, "labels")
+        AiAnnotaties = os.path.join(ProjectName, "Voorspellingen", "labels")
         if not os.path.exists(AiAnnotaties):
             os.makedirs(AiAnnotaties)
 
         AnnoterenWidget = widgets.HBox([widgets.VBox([
-            widgets.HBox([Back, AiAssist]),    
+            widgets.HBox([WiteLine, Back, AiAssist]),    
             ImageView,
-            widgets.HBox([ProgressBar, Delete])], 
+            widgets.HBox([WiteLine, ProgressBar, Delete])], 
             layout=widgets.Layout(width='600px')), 
             CheatSheet], layout=widgets.Layout(align_items='center'))
     else:
         AnnoterenWidget = widgets.HBox([widgets.VBox([
-            widgets.HBox([Back]),    
+            widgets.HBox([WiteLine, Back]),    
             ImageView,
-            widgets.HBox([ProgressBar, Delete])], 
+            widgets.HBox([WiteLine, ProgressBar, Delete])], 
             layout=widgets.Layout(width='600px')), 
             CheatSheet], layout=widgets.Layout(align_items='center'))
 
