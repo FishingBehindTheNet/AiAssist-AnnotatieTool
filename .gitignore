@@ -2,4 +2,4 @@
 *.pt
 *.png
 *.onnx
-/Model/**
+**/Model/**

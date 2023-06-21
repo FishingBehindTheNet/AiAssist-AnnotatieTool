@@ -1,11 +1,18 @@
 def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
-    from Modules.LabelConvert import YoloToWidget, WidgetToYolo
+    from Modules.LabelConvert import YoloToWidget, WidgetToYolo, load_label_names
     from jupyter_bbox_widget import BBoxWidget
     from ultralytics import YOLO
     import ipywidgets as widgets
     import random
     import base64
+    import shutil
+    import gc
     import os
+
+    load_label_names(Labels)
+
+    if not os.path.exists(f"{ImageMap}\\Check Later"):
+        os.makedirs(f"{ImageMap}\\Check Later")
 
     #Work around om afbeeldingen zichtbaar te maken
     def encode_image(filepath):
@@ -14,28 +21,44 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
         encoded = str(base64.b64encode(image_bytes), 'utf-8')
         return "data:image/jpg;base64,"+encoded
     
-    def BoxPicker(PlaceHolder):
+    def BoxPicker(Overwrite):
         ImageView.bboxes = []
-        if AiAssist.value:
-            AnnoName = Files[ProgressBar.value].replace(".jpg", ".txt").replace(".JPG", ".txt")
-            AnnoLocation = os.path.join(AiAnnotaties, AnnoName)
-            if not os.path.exists(AnnoLocation):
-                ImagePath = os.path.join(ImageMap, Files[ProgressBar.value])
-                model.predict(ImagePath, save_txt=True, conf=0.25, exist_ok=True, project=ProjectName, name="Voorspellingen")
-
+        PathLink()
+        if Overwrite=="reGen":
+            LabelLocation = os.path.join(os.getcwd(), f"""{ProjectName}\\Voorspellingen\\labels\\{Files[ProgressBar.value].replace(".jpg", ".txt").replace(".JPG", ".txt")}""")
+            if os.path.exists(LabelLocation):
+                os.remove(LabelLocation)
+            ImagePath = os.path.join(ImageMap, Files[ProgressBar.value])
+            model.predict(ImagePath, save_txt=True, conf=0.25, exist_ok=True, project=ProjectName, name="Voorspellingen", augment=True)
             ImageView.bboxes = YoloToWidget(
                 ImageMap = ImageMap,
                 ImageName = Files[ProgressBar.value],
                 Annotaties = AiAnnotaties,
-                Labels = Labels
-            )
-        else:
+            )      
+        elif os.path.exists(os.path.join(Annotaties, Files[ProgressBar.value].replace(".jpg", ".txt").replace(".JPG", ".txt"))):
             ImageView.bboxes = YoloToWidget(
                 ImageMap = ImageMap,
                 ImageName = Files[ProgressBar.value],
                 Annotaties = Annotaties,
-                Labels = Labels
             )
+        else:
+            if AiAssist.value:
+                AnnoLocation = os.path.join(AiAnnotaties, Files[ProgressBar.value].replace(".jpg", ".txt").replace(".JPG", ".txt"))
+                if not os.path.exists(AnnoLocation):
+                    ImagePath = os.path.join(ImageMap, Files[ProgressBar.value])
+                    model.predict(ImagePath, save_txt=True, conf=0.25, exist_ok=True, project=ProjectName, name="Voorspellingen", augment=True)
+
+                ImageView.bboxes = YoloToWidget(
+                    ImageMap = ImageMap,
+                    ImageName = Files[ProgressBar.value],
+                    Annotaties = AiAnnotaties,
+                )
+            else:
+                ImageView.bboxes = YoloToWidget(
+                    ImageMap = ImageMap,
+                    ImageName = Files[ProgressBar.value],
+                    Annotaties = Annotaties,
+                )
 
     LabeledImages = []
     UnlabeledImages = []
@@ -59,31 +82,68 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
         label_names = [label.strip() for label in a.readlines()]
 
     #laat zien hoeveel foto's je nog moet
-    ProgressBar = widgets.IntProgress(value=len(LabeledImages), max=len(Files)-1, description="%Geanoteerd")
+    ProgressBar = widgets.IntProgress(
+        value=len(LabeledImages)
+        ,
+        max=len(Files)-1, 
+        description="Foto's geannoteerd:",
+        style={'description_width': 'initial'},
+        tooltip="procent van de foto's dat met een annotatie in de label map",
+        layout=widgets.Layout(width="100%")
+    )
+
+    ImageTitle = widgets.HTML(
+        value="",
+        tooltip="Open",
+    )
+
+    def PathLink():
+        Title = os.path.join(ImageMap, Files[ProgressBar.value])
+        Title.replace("\\", "/")
+        ImageTitle.value = f"<h2><a href='file:///{Title}'>{Files[ProgressBar.value]}</a></h2>"
 
     #voegt knop toe om terug te kunnen
     Back = widgets.Button(
         value = False,
         description = "Back",
+        tooltip = "Terug naar de vorige foto",
         button_style = "warning"
     )
 
     AiAssist = widgets.ToggleButton(
         description="Handmatig",
         value = False,
+        tooltip = "Ai annotaties aan/uit",
         button_style = ""
-        )
+    )
+
+    reGen = widgets.Button(
+        value = False,
+        description = "Genereer annotaties",
+        tooltip = "Verwijder Ai annotaties en genereer nieuwe annotaties",
+        button_style = "primary"
+    )
+
+    Later = widgets.Button(
+        value = False,
+        description = "Check Later",
+        tooltip = f"Kopier de image naar {ImageMap}\\Check Later",
+        button_style = "info"
+    )
 
     Delete = widgets.Button(
         value = False,
-        description = "Delete all BBox",
+        description = "Delete image",
+        tooltip = f"Verwijder image uit {ImageMap}",
         button_style = "danger"
     )
+
 
     #Displays de foto en zorgt dat je kunt annoteren
     ImageView = BBoxWidget(
         image = encode_image(os.path.join(ImageMap, Files[ProgressBar.value])),
         classes = label_names,
+        layout = widgets.Layout(width="100%")
     )
     BoxPicker("")
 
@@ -155,17 +215,21 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
 
         AnnoterenWidget = widgets.HBox([widgets.VBox([
             widgets.HBox([WiteLine, Back, AiAssist]),    
-            ImageView,
-            widgets.HBox([WiteLine, ProgressBar, Delete])], 
-            layout=widgets.Layout(width='600px')), 
-            CheatSheet], layout=widgets.Layout(align_items='center'))
+            ImageView]),
+            widgets.VBox([ImageTitle,
+                widgets.HBox([reGen, Later, Delete]),
+                ProgressBar,
+                CheatSheet]),
+            ], layout=widgets.Layout(align_items='center'))
     else:
         AnnoterenWidget = widgets.HBox([widgets.VBox([
-            widgets.HBox([WiteLine, Back]),    
-            ImageView,
-            widgets.HBox([WiteLine, ProgressBar, Delete])], 
-            layout=widgets.Layout(width='600px')), 
-            CheatSheet], layout=widgets.Layout(align_items='center'))
+            widgets.HBox([WiteLine, Back,]),    
+            ImageView]),
+            widgets.VBox([ImageTitle,
+                widgets.HBox([Later, Delete]),
+                ProgressBar,
+                CheatSheet]),
+            ], layout=widgets.Layout(align_items='center'))
 
     def on_button_clicked(PlaceHolder):
         if AiAssist.value:
@@ -185,7 +249,9 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
         ProgressBar.value += 1
         image_file = Files[ProgressBar.value]
         ImageView.image = encode_image(os.path.join(ImageMap, image_file))
-        BoxPicker("")  
+        BoxPicker("")
+        if ProgressBar.value % 20 == 0:
+            gc.collect()
 
     #slaat vooruitgang op en roept nieuwe foto aan en gebruikt dan de skip() functie
     @ImageView.on_submit
@@ -195,8 +261,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
             ImageMap = ImageMap,
             ImageName = image_file,
             Annotaties = Annotaties,
-            Labels = Labels,
-            BBox = ImageView.bboxes
+            BBox = ImageView.bboxes,
         )
 
         skip()
@@ -207,10 +272,28 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
         ProgressBar.value -= 1
         image_file = Files[ProgressBar.value]
         ImageView.image = encode_image(os.path.join(ImageMap, image_file))
-        BoxPicker("")  
+        BoxPicker("")
+
+    @reGen.on_click
+    def clear(PlaceHolder):
+        BoxPicker(Overwrite="reGen")  
 
     @Delete.on_click
     def clear(PlaceHolder):
-        ImageView.bboxes = []
+        image_file = Files[ProgressBar.value]
+        del Files[ProgressBar.value]
+        ProgressBar.max -= 1
+        os.remove(os.path.join(ImageMap, image_file))
+        image_file = Files[ProgressBar.value]
+        ImageView.image = encode_image(os.path.join(ImageMap, image_file))
+        BoxPicker("")
+
+    @Later.on_click
+    def move(PlaceHolder):
+        image_file = Files[ProgressBar.value]
+        ProgressBar.value += 1
+        ImageView.image = encode_image(os.path.join(ImageMap, Files[ProgressBar.value]))
+        BoxPicker("")
+        shutil.copy2(os.path.join(ImageMap, image_file), f"{ImageMap}\\Check Later")
 
     display(AnnoterenWidget)

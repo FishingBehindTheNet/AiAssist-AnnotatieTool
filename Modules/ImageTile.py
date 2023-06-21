@@ -1,21 +1,27 @@
 import os
 from PIL import Image
 import ipywidgets as widgets
+from Modules import UI_parts
 from itertools import product
 from ipyfilechooser import FileChooser
 
+
 def ImageTiler():
     def ImageTile(ImageMap, Output, Size, Overlap):
-        docs = os.listdir(ImageMap)
+        docs = [file for file in os.listdir(ImageMap) if file.endswith('.jpeg') or file.endswith('.png')or file.endswith('.jpg')]        
         ProgressBar = widgets.IntProgress(value=0, max=len(docs), description="Progress:")
         WachtScherm = widgets.HTML(value = "<h3>Foto's worden gesegmenteerd:</h3>")
         display(WachtScherm, ProgressBar)
 
-        for Files in os.listdir(ImageMap):
+        for Files in docs:
             ProgressBar.value += 1
 
             image = Image.open(os.path.join(ImageMap, Files))
             Width, Height = image.size
+
+            if Width > Height:
+                image = image.rotate(-90, expand=True)
+                Width, Height = image.size
 
             FileName, FileType = os.path.splitext(Files)
             grid = product(range(0, Width, (Size-Overlap)), range(0, Height, (Size-Overlap)))
@@ -24,42 +30,22 @@ def ImageTiler():
                 box = (x, y, x+Size, y+Size)
                 out = os.path.join(Output, f'{FileName}_{y}_{x}{FileType}')
                 image.crop(box).save(out)
+            image.close()
         
         ProgressBar.close()
         WachtScherm.close()
 
-
-    Picker = widgets.Select(
-        options=[Dir for Dir in os.listdir(os.getcwd()) if os.path.isdir(Dir) and Dir != 'Modules'],
-        description='Project:',
-        disabled=False
+    DataNaamInput = widgets.Text(
+    placeholder='Naam dataset (Geen speciale tekens!)',
+    disabled=False,
+    tooltip = 'Geef de naam van de dataset(GEEN SPECIALE TEKENS). Als er al een dataset bestaat met deze naam word de data samengevoegd',
+    style={'description_width': 'initial'},
     )
+    DataNaamInput.continuous_update = False
 
-    ProjectInput = widgets.Text(
-    placeholder='Project naam',
-    description='Nieuw:',
-    disabled=False
+    info1 = widgets.HTML(
+    value = "Deze map bevat alle <b>Foto's</b> die gesegmenteerd gaan worden:"
     )
-    ProjectInput.continuous_update = False
-
-    Add = widgets.Button(
-        value = False,
-        description = "Maak",
-        button_style = "info",
-        layout = widgets.Layout(width = '80px')
-    )
-
-    def add(PlaceHolder):
-        if ProjectInput.value:
-            NewLocation = os.path.join(os.getcwd(), ProjectInput.value)
-            if not os.path.exists(NewLocation):
-                os.makedirs(NewLocation)
-                Picker.options= [Dir for Dir in os.listdir(os.getcwd()) if os.path.isdir(Dir) and Dir != 'Modules']
-                Picker.value = ProjectInput.value
-        ProjectInput.value = ""
-
-    Add.on_click(add)
-    ProjectInput.observe(add)
 
     ImagePick = FileChooser()
     ImagePick.show_only_dirs = True
@@ -69,8 +55,9 @@ def ImageTiler():
         min=0,
         max=2000,
         step=1,
-        description='Tile grote:',
-        disabled=False
+        description='Tile grootte:',
+        tooltip="Geef de grote van je segmenten, 640 maakt bijvoorbeeld segmenten van 640 bij 640 pixels",
+        disabled=False,
     )
 
     Overlap = widgets.FloatSlider(
@@ -80,6 +67,7 @@ def ImageTiler():
         step=1,
         description='Overlap:',
         orientation='horizontal',
+        tooltip="Geef de grote van je overlap, 10% bijvoorbeeld betekent dat er links, rechts, onder en boven 10 van het segment ook op het naastliggende segment afgebeeld word",
         readout_format=''
     )
 
@@ -96,8 +84,8 @@ def ImageTiler():
 
     @submit.on_click
     def run(PlaceHolder):
-        ImageLocation = os.path.join(Picker.value, "Data\\unlabeled\\images")
-        LabelLocation = os.path.join(Picker.value, "Data\\unlabeled\\labels")
+        ImageLocation = os.path.join(UI_parts.ProjectPicker.value, f"Data\\{DataNaamInput.value}\\images")
+        LabelLocation = os.path.join(UI_parts.ProjectPicker.value, f"Data\\{DataNaamInput.value}\\labels")
         SuccesScherm = widgets.HTML(
             value = f"""
             <style>
@@ -121,10 +109,10 @@ def ImageTiler():
             </tr>
             """
         )
-        if ImagePick.selected:
+        if ImagePick.selected and DataNaamInput.value and UI_parts.ProjectPicker.value:
             dirs_to_create = [
-                os.path.join(Picker.value, "Data\\unlabeled\\images"),
-                os.path.join(Picker.value, "Data\\unlabeled\\labels")
+                os.path.join(UI_parts.ProjectPicker.value, f"Data\\{DataNaamInput.value}\\images"),
+                os.path.join(UI_parts.ProjectPicker.value, f"Data\\{DataNaamInput.value}\\labels")
             ]
             for dir in dirs_to_create:
                 if not os.path.exists(dir):
@@ -138,23 +126,42 @@ def ImageTiler():
                 Overlap= int(Size.value*(Overlap.value/100))
             )
             display(SuccesScherm)
+        
+        elif not ImagePick.selected:
+            ErrorCode.value = """
+                <div style="text-align: right;">
+                    <i><b><code style="color:red;">Map met foto's niet geselecteerd.<br>Zorg ervoor dat je op <kbd><font color="#424a48"><b>select</b></font></kbd> drukt na het kiezen van een map om je selectie te bevestigen.</code></b></i>
+                </div>
+                """
+        elif not UI_parts.ProjectPicker.value:
+             ErrorCode.value = """
+                <div style="text-align: right;">
+                    <i><b><code style="color:red;">Er is geen Project geselecteerd.<br>Zorg ervoor dat je op <kbd><font color="#424a48"><b>Maak</b></font></kbd> drukt als je een nieuwe project wil maken/gebruiken.</code></b></i>
+                </div>
+                """           
+        else:
+             ErrorCode.value = """
+                <div style="text-align: right;">
+                    <i><b><code style="color:red;">Er is geen naam opgegeven voor de nieuwe dataset.</code></b></i>
+                </div>
+                """              
 
-    Titel = widgets.HTML(value = "<h3>_________________________________________________________Image Tiler/Cutter_________________________________________________</h3>")
+    Titel = widgets.HTML(value =     "<h3>_________________________________________________________Image Tiler/Cutter______________________________________________________________</h3>")
+    line = widgets.HTML(value = "<h3>____________________________________________________________________________________________________________________________________________</h3>")
+    ErrorCode = widgets.HTML()
 
-    Box1 = widgets.VBox([ImagePick, TileSize])
-    Box2 = widgets.VBox([
-        widgets.HBox([
-            ProjectInput,
-            Add,
-            ]),
-        Picker,
-        ])
+    Box1 = widgets.VBox([info1, ImagePick, TileSize])
+    Box2 = widgets.VBox([UI_parts.ProjectInterface, DataNaamInput]) 
 
     View = widgets.VBox([
-        widgets.HBox([Titel, submit]),
+        Titel,
         widgets.HBox([ 
             Box1,
-            Box2
-        ])])
+            Box2,
+        ]),
+        line,
+        widgets.HBox([ErrorCode, submit
+        ], layout= widgets.Layout(justify_content="flex-end"))
+        ], layout= widgets.Layout(width='888px'))
 
     display(View)

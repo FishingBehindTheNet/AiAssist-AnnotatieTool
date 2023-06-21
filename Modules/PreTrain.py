@@ -1,59 +1,10 @@
-from ipyfilechooser import FileChooser
+from Modules import UI_parts
 import ipywidgets as widgets
 import random
 import shutil   
 import os
 
 def AnnotationMove():
-    #Genereert dialoog boxen
-    info1 = widgets.HTML(
-        value = "Deze map bevat alle <b>Foto's</b>:"
-    )
-
-    #Roept een widget aan die fungeert als interface om map locaties aan te vragen
-    ImagePick = FileChooser()
-    ImagePick.show_only_dirs = True
-
-    #Genereert dialoog boxen
-    info2 = widgets.HTML(
-        value = "Deze map bevat de bijbehorende  <b>Labels</b>:"
-    )
-    #Roept een widget aan die fungeert als interface om map locaties aan te vragen
-    LabelPick = FileChooser()
-    LabelPick.show_only_dirs = True
-
-    Picker = widgets.Select(
-        options=[Dir for Dir in os.listdir(os.getcwd()) if os.path.isdir(Dir) and Dir != 'Modules'],
-        description='Project:',
-        disabled=False
-    )
-
-    ProjectInput = widgets.Text(
-    placeholder='Project naam',
-    description='Nieuw:',
-    disabled=False
-    )
-    ProjectInput.continuous_update = False
-
-    Add = widgets.Button(
-        value = False,
-        description = "Maak",
-        button_style = "info",
-        layout = widgets.Layout(width = '80px')
-    )
-
-    def add(PlaceHolder):
-        if ProjectInput.value:
-            NewLocation = os.path.join(os.getcwd(), ProjectInput.value)
-            if not os.path.exists(NewLocation):
-                os.makedirs(NewLocation)
-                Picker.options= [Dir for Dir in os.listdir(os.getcwd()) if os.path.isdir(Dir) and Dir != 'Modules']
-                Picker.value = ProjectInput.value
-        ProjectInput.value = ""
-
-    Add.on_click(add)
-    ProjectInput.observe(add)
-
     ModelInput = widgets.Text(
         placeholder='Model',
         description='Model naam:',
@@ -126,9 +77,9 @@ def AnnotationMove():
 
     @submit.on_click
     def run(PlaceHolder):
-        ImageLocation = os.path.join(os.getcwd(), f"{Picker.value}Data\\{ModelInput.value}\\images")
-        LabelLocation = os.path.join(os.getcwd(), f"{Picker.value}Data\\{ModelInput.value}\\labels")
-        ConfigLocation = os.path.join(os.getcwd(), f"{Picker.value}Data\\{ModelInput.value}\\{ModelInput.value}_Config.yaml")
+        ImageLocation = os.path.join(os.getcwd(), f"{UI_parts.ProjectPicker.value}\\Model data\\{ModelInput.value}\\images")
+        LabelLocation = os.path.join(os.getcwd(), f"{UI_parts.ProjectPicker.value}\\Model data\\{ModelInput.value}\\labels")
+        ConfigLocation = os.path.join(os.getcwd(), f"{UI_parts.ProjectPicker.value}\\Model data\\{ModelInput.value}\\{ModelInput.value}_Config.yaml")
         SuccesScherm = widgets.HTML(
             value = f"""
             <style>
@@ -157,40 +108,71 @@ def AnnotationMove():
             """
         )
 
-        if ImagePick.selected and LabelPick.selected and ModelInput.value:
+        if UI_parts.ImagePick.selected and UI_parts.LabelPick.selected and ModelInput.value and UI_parts.ProjectPicker.value:
             View.close()
             preTrain(
-                Labels = LabelPick.selected_path,
-                Images = ImagePick.selected_path,
-                ProjectName= Picker.value,
+                Labels = UI_parts.LabelPick.selected_path,
+                Images = UI_parts.ImagePick.selected_path,
+                ProjectName= UI_parts.ProjectPicker.value,
                 ModelName = ModelInput.value,
                 validatiepercentage = (Val.value/100),
                 testpercentage= (Test.value/100),
                 move = Move.value
             )
             display(SuccesScherm)
+        elif not UI_parts.ImagePick.selected_path:
+            ErrorCode.value = """
+                <div style="text-align: right;">
+                    <i><b><code style="color:red;">Map met foto's niet geselecteerd.<br>Zorg ervoor dat je op <kbd><font color="#424a48"><b>select</b></font></kbd> drukt na het kiezen van een map om je selectie te bevestigen.</code></b></i>
+                </div>
+                """
+        elif not UI_parts.LabelPick.selected_path:
+            ErrorCode.value = """
+                <div style="text-align: right;">
+                    <i><b><code style="color:red;">Map met labels niet geselecteerd.<br>Zorg ervoor dat je op <kbd><font color="#424a48"><b>select</b></font></kbd> drukt na het kiezen van een map om je selectie te bevestigen.</code></b></i>
+                </div>
 
+                """
+        elif not UI_parts.ProjectPicker.value:
+            ErrorCode.value = """
+                <div style="text-align: right;">
+                    <i><b><code style="color:red;">Er is geen Project geselecteerd.<br>Zorg ervoor dat je op <kbd><font color="#424a48"><b>Maak</b></font></kbd> drukt als je een nieuwe project wil maken/gebruiken.</code></b></i>
+                </div>
+                """
+        elif not ModelInput.value:
+            ErrorCode.value = """
+                <div style="text-align: right;">
+                    <i><b><code style="color:red;">Er is geen model naam opgegeven</code></b></i>
+                </div>
+                """
+            
     Procent = widgets.HTML("%")
     DataSplit = widgets.VBox([widgets.HBox([Test, Procent]), widgets.HBox([Val, Procent]), widgets.HBox([Train, Procent])])
 
-    Titel = widgets.HTML(value = "<h3>_______________________________________________________________________________Data move_________________________________________________</h3>")
-    TitelV1 = widgets.HTML(value = "<h3>___________________Toekomstige locatie___________________</h3>")
-    TitelV2 = widgets.HTML(value = "<h3>_________________________Huidige Locatie____________________________________</h3>")
+    Titel = widgets.HTML(value = "<h3>______________________________________________________________Data move_________________________________________________________________</h3>")
+    TitelV1 = widgets.HTML(value = "<h3>_______________________Huidige Locatie_____________________</h3>")
+    TitelV2 = widgets.HTML(value = "<h3>_____________________Toekomstige locatie_____________________</h3>")
+    line = widgets.HTML(value = "<h3>____________________________________________________________________________________________________________________________________________</h3>")
+    ErrorCode = widgets.HTML()
 
     ModelPicker = widgets.VBox([
-        widgets.HBox([
-            ProjectInput,
-            Add,
-        ]),
-        Picker,
+        UI_parts.ProjectInterface,
         ModelInput,])
 
-    DirPick = widgets.VBox([info1, ImagePick, info2, LabelPick])
+    Vlak1 = widgets.HBox([TitelV1, Move, TitelV2])
+    Vlak2 = UI_parts.FilePickInterface
+    Vlak3 = widgets.VBox([ModelPicker, DataSplit])
+    
 
-    Vlak1 = widgets.VBox([TitelV1, ModelPicker, DataSplit])
-    Vlak2 = widgets.VBox([TitelV2, DirPick])
-
-    View = widgets.VBox([widgets.HBox([Titel, submit]), widgets.HBox([Vlak2, Move, Vlak1])])
+    View = widgets.VBox([
+        Titel,
+        Vlak1,
+        widgets.HBox([Vlak2, Vlak3]),
+        line,
+        widgets.HBox([ErrorCode, submit
+        ], layout= widgets.Layout(justify_content="flex-end"))
+        ], layout= widgets.Layout(width='888px'))
+    
     display(View)
 
 def preTrain(Labels, Images, ProjectName, ModelName, validatiepercentage=0.2, testpercentage=0.0, move=False):
@@ -202,12 +184,12 @@ def preTrain(Labels, Images, ProjectName, ModelName, validatiepercentage=0.2, te
     ModelDir = os.path.join(os.getcwd(), ProjectName)
         
     dirs_to_create = [
-        os.path.join(ModelDir, f"Data\\{ModelName}\\images\\test"),
-        os.path.join(ModelDir, f"Data\\{ModelName}\\labels\\test"),
-        os.path.join(ModelDir, f"Data\\{ModelName}\\images\\train"),
-        os.path.join(ModelDir, f"Data\\{ModelName}\\labels\\train"),
-        os.path.join(ModelDir, f"Data\\{ModelName}\\images\\validation"),
-        os.path.join(ModelDir, f"Data\\{ModelName}\\labels\\validation")
+        os.path.join(ModelDir, f"Model data\\{ModelName}\\images\\test"),
+        os.path.join(ModelDir, f"Model data\\{ModelName}\\labels\\test"),
+        os.path.join(ModelDir, f"Model data\\{ModelName}\\images\\train"),
+        os.path.join(ModelDir, f"Model data\\{ModelName}\\labels\\train"),
+        os.path.join(ModelDir, f"Model data\\{ModelName}\\images\\validation"),
+        os.path.join(ModelDir, f"Model data\\{ModelName}\\labels\\validation")
     ]
     for dir in dirs_to_create:
         if not os.path.exists(dir):
@@ -215,7 +197,7 @@ def preTrain(Labels, Images, ProjectName, ModelName, validatiepercentage=0.2, te
     
     docs = os.listdir(Labels)
     for doc in docs:
-        image = (doc.replace(".txt", ".JPG"))
+        image = doc.replace(".txt", ".JPG").replace(".txt", ".jpg")
         ImageLocation = os.path.join(Images, image)
         LabelLocation = os.path.join(Labels, doc)
         ProgressBar.value += 1
@@ -224,27 +206,27 @@ def preTrain(Labels, Images, ProjectName, ModelName, validatiepercentage=0.2, te
             chance = random.random()
             if move:
                 if chance < testpercentage:
-                    shutil.move(ImageLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\images\\test"))
-                    shutil.move(LabelLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\labels\\test"))
+                    shutil.move(ImageLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\images\\test"))
+                    shutil.move(LabelLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\labels\\test"))
                 elif chance < (validatiepercentage + testpercentage):
-                    shutil.move(ImageLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\images\\validation"))
-                    shutil.move(LabelLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\labels\\validation"))
+                    shutil.move(ImageLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\images\\validation"))
+                    shutil.move(LabelLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\labels\\validation"))
                 else:
-                    shutil.move(ImageLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\images\\train"))
-                    shutil.move(LabelLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\labels\\train"))
+                    shutil.move(ImageLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\images\\train"))
+                    shutil.move(LabelLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\labels\\train"))
             else:
                 if chance < testpercentage:
-                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\images\\test"))
-                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\labels\\test"))
+                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\images\\test"))
+                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\labels\\test"))
                 elif chance < (validatiepercentage + testpercentage):
-                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\images\\validation"))
-                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\\labels\\validation"))
+                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\images\\validation"))
+                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\\labels\\validation"))
                 else:
-                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\images\\train"))
-                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"Data\\{ModelName}\\labels\\train"))
+                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\images\\train"))
+                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"Model data\\{ModelName}\\labels\\train"))
     
-    with open(os.path.join(Labels, "Labels.txt"), "r") as f:
-        labels = [line.strip() for line in f.readlines()]
+    with open(os.path.join(Labels, "Labels.txt"), "r") as a:
+        labels = [line.strip() for line in a.readlines()]
 
     names = {}
     for i, label in enumerate(labels):
@@ -252,22 +234,23 @@ def preTrain(Labels, Images, ProjectName, ModelName, validatiepercentage=0.2, te
 
     yaml_dict = {
         "path": ModelDir,
-        "train": f"Data\\{ModelName}\\images\\train",
-        "val": f"Data\\{ModelName}\\images\\validation",
+        "train": f"Model data\\{ModelName}\\images\\train",
+        "val": f"Model data\\{ModelName}\\images\\validation",
         "names": names
     }
 
-    ConfigLocation = os.path.join(ModelDir, f"Data\\{ModelName}\\{ModelName}_Config.yaml")
-    f = open(ConfigLocation, "w+")    
+    ConfigLocation = os.path.join(ModelDir, f"Model data\\{ModelName}\\{ModelName}_Config.yaml")
+    with open(ConfigLocation, "w+") as b:
+        b.write("")
 
-    with open(ConfigLocation, "a") as f:
+    with open(ConfigLocation, "a") as c:
         for key, value in yaml_dict.items():
             if key != "names":
-                f.write(f"{key}: {value}\n")
+                c.write(f"{key}: {value}\n")
             else:
-                f.write(f"\nnames:\n")
+                c.write(f"\nnames:\n")
                 for k, v in names.items():
-                    f.write(f"  {k}: {v}\n")
+                    c.write(f"  {k}: {v}\n")
     
     WachtScherm.close()
     ProgressBar.close()
