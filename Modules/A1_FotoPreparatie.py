@@ -35,6 +35,16 @@ def FotoSegmentatie(ImageMap, Output, Size, Overlap):
             image = image.rotate(-90, expand=True)
             Width, Height = image.size
 
+        #Resized de foto zodat ongeacht de camera de foto's een constante grote hebben
+        Width64mp = 6936
+        if Width != Width64mp:
+            # Berekend de nieuwe hoogte van de foto zodat verhoudingen niet veranderd worden
+            Height64mp = int(Width64mp/Width*Height)
+
+            # Resize foto en bepaal de nieuwe hoogte en breedte
+            image = image.resize((Width64mp, Height64mp))
+            Width, Height = image.size
+
         #Is later nodig voor de nieuwe namen
         FileName, FileType = os.path.splitext(Files)
 
