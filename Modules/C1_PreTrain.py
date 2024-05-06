@@ -81,9 +81,9 @@ def AnnotationMove():
         # If statement die controleert of alle velden zijn ingevoerd en anders een ergercode geeft om aan te geven welke gegevens missen.
         if Q_UIparts.ImagePick.selected and Q_UIparts.LabelPick.selected and Q_UIparts.DataNaamInput.value and Q_UIparts.ProjectPicker.value:
             # maakt eerst een succes scherm met de opgegeven waarde die weergeven zal worden wanneer alle bestanden verplaatst zijn.
-            ImageLocation = f"{Q_UIparts.ProjectPicker.value}\\Data\\Train en Test sets\\{Q_UIparts.DataNaamInput.value}\\images"
-            LabelLocation = f"{Q_UIparts.ProjectPicker.value}\\Data\\Train en Test sets\\{Q_UIparts.DataNaamInput.value}\\labels"
-            ConfigLocation = f"{Q_UIparts.ProjectPicker.value}\\Data\\Train en Test sets\\{Q_UIparts.DataNaamInput.value}\\{Q_UIparts.DataNaamInput.value}_Config.yaml"
+            ImageLocation = f"{Q_UIparts.ProjectPicker.value}/Data/Train en Test sets/{Q_UIparts.DataNaamInput.value}/images"
+            LabelLocation = f"{Q_UIparts.ProjectPicker.value}/Data/Train en Test sets/{Q_UIparts.DataNaamInput.value}/labels"
+            ConfigLocation = f"{Q_UIparts.ProjectPicker.value}/Data/Train en Test sets/{Q_UIparts.DataNaamInput.value}/{Q_UIparts.DataNaamInput.value}_Config.yaml"
             SuccesScherm = widgets.HTML(
                 value = f"""
                 <style>
@@ -215,14 +215,14 @@ def preTrain(Labels, Images, ProjectName, ModelName, Validatiepercentage, Testpe
     display(WachtScherm, ProgressBar)
 
     #maakt een lijst van alle mappen die nodig zijn en maakt deze Aan als ze nog niet bestaan
-    ModelDir = os.path.join(os.getcwd(), f"{ProjectName}\\Data\\Train en Test sets\\{ModelName}")
+    ModelDir = os.path.join(os.getcwd(), f"{ProjectName}/Data/Train en Test sets/{ModelName}")
     dirs_to_create = [
-        os.path.join(ModelDir, f"images\\test"),
-        os.path.join(ModelDir, f"labels\\test"),
-        os.path.join(ModelDir, f"images\\train"),
-        os.path.join(ModelDir, f"labels\\train"),
-        os.path.join(ModelDir, f"images\\validation"),
-        os.path.join(ModelDir, f"labels\\validation")
+        os.path.join(ModelDir, f"images/test"),
+        os.path.join(ModelDir, f"labels/test"),
+        os.path.join(ModelDir, f"images/train"),
+        os.path.join(ModelDir, f"labels/train"),
+        os.path.join(ModelDir, f"images/validation"),
+        os.path.join(ModelDir, f"labels/validation")
     ]
     for dir in dirs_to_create:
         if not os.path.exists(dir):
@@ -240,24 +240,24 @@ def preTrain(Labels, Images, ProjectName, ModelName, Validatiepercentage, Testpe
             chance = random.random()
             if Move:
                 if chance < Testpercentage:
-                    shutil.move(ImageLocation, os.path.join(ModelDir, f"images\\test"))
-                    shutil.move(LabelLocation, os.path.join(ModelDir, f"labels\\test"))
+                    shutil.move(ImageLocation, os.path.join(ModelDir, f"images/test"))
+                    shutil.move(LabelLocation, os.path.join(ModelDir, f"labels/test"))
                 elif chance < (Validatiepercentage + Testpercentage):
-                    shutil.move(ImageLocation, os.path.join(ModelDir, f"images\\validation"))
-                    shutil.move(LabelLocation, os.path.join(ModelDir, f"labels\\validation"))
+                    shutil.move(ImageLocation, os.path.join(ModelDir, f"images/validation"))
+                    shutil.move(LabelLocation, os.path.join(ModelDir, f"labels/validation"))
                 else:
-                    shutil.move(ImageLocation, os.path.join(ModelDir, f"images\\train"))
-                    shutil.move(LabelLocation, os.path.join(ModelDir, f"labels\\train"))
+                    shutil.move(ImageLocation, os.path.join(ModelDir, f"images/train"))
+                    shutil.move(LabelLocation, os.path.join(ModelDir, f"labels/train"))
             else:
                 if chance < Testpercentage:
-                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"images\\test"))
-                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"labels\\test"))
+                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"images/test"))
+                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"labels/test"))
                 elif chance < (Validatiepercentage + Testpercentage):
-                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"images\\validation"))
-                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"labels\\validation"))
+                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"images/validation"))
+                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"labels/validation"))
                 else:
-                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"images\\train"))
-                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"labels\\train"))
+                    shutil.copy2(ImageLocation, os.path.join(ModelDir, f"images/train"))
+                    shutil.copy2(LabelLocation, os.path.join(ModelDir, f"labels/train"))
     
     #Leest de Labels.txt uit de label folder in en maakt een dict van alle labels waarbij de key:i het regelnummer in Labels.txt is en de value:labels het bijbehorende label is.
     with open(os.path.join(Labels, "Labels.txt"), "r") as a:
@@ -266,9 +266,9 @@ def preTrain(Labels, Images, ProjectName, ModelName, Validatiepercentage, Testpe
     #genereert de text die uiteindelijk in het config bestand moet komen
     yaml_dict = {
         "path": ModelDir,
-        "train": "images\\train",
-        "val": "images\\validation",
-        "test": "images\\test",
+        "train": "images/train",
+        "val": "images/validation",
+        "test": "images/test",
         "names": names
     }
 

@@ -7,17 +7,17 @@ import os
 #Test het model
 def ModelTest(Model, ConfigFile, DataPick, Project, Confidence):
     #Stript de naam van de dataset uit de config file
-    DataName = str(ConfigFile).split("\\")[-1].removesuffix("_Config.yaml")
+    DataName = str(ConfigFile).split("/")[-1].removesuffix("_Config.yaml")
 
     # Controleert of het geselecteerde model uit de modelresultaten map komt of uit de modellen map. 
     # Output de huidige naam van het model en een naam zoals veker gebruikt: {naam van het model}_{Versie van het model: "last" of "best"}
-    if str(Model).split("\\")[-1] == "best.pt" or str(Model).split("\\")[-1] == "last.pt":
-        ModelName = str(Model).split("\\")[-4]
-        Versie = str(Model).split("\\")[-1].removesuffix('.onnx').removesuffix('.pt')
+    if str(Model).split("/")[-1] == "best.pt" or str(Model).split("/")[-1] == "last.pt":
+        ModelName = str(Model).split("/")[-4]
+        Versie = str(Model).split("/")[-1].removesuffix('.onnx').removesuffix('.pt')
         ModelVersion = f"{ModelName}_{Versie}"
     else:
-        ModelName = str(Model).split("\\")[-1]
-        ModelVersion = str(Model).split("\\")[-1].removesuffix('.onnx').removesuffix('.pt')
+        ModelName = str(Model).split("/")[-1]
+        ModelVersion = str(Model).split("/")[-1].removesuffix('.onnx').removesuffix('.pt')
 
     #Start het validatie process met de geselecteerde waarde, Laatste map word samengesteld uit de verschillende instelleningen zodat later te herleiden is welke instellingen gebruikt zijn.
     Model = YOLO(Model, task="detect")
@@ -27,11 +27,11 @@ def ModelTest(Model, ConfigFile, DataPick, Project, Confidence):
         conf=Confidence, 
         exist_ok=True, 
         split='test' if DataPick else 'val', 
-        project=f"{Project}\\Model Resultaten", 
-        name=f"{ModelName}\\M={ModelVersion}, DS={DataName} ({'TestSet' if DataPick else 'ValidatieSet'}, conf={Confidence})", 
+        project=f"{Project}/Model Resultaten", 
+        name=f"{ModelName}/M={ModelVersion}, DS={DataName} ({'TestSet' if DataPick else 'ValidatieSet'}, conf={Confidence})", 
         augment=True
     )
-    return f"{Project}\\Model Resultaten\\{ModelName}\\M={ModelVersion}, DS={DataName} ({'TestSet' if DataPick else 'ValidatieSet'}, conf={Confidence})"
+    return f"{Project}/Model Resultaten/{ModelName}/M={ModelVersion}, DS={DataName} ({'TestSet' if DataPick else 'ValidatieSet'}, conf={Confidence})"
 
 #Functie die de interface opstart
 def ModelValidation():

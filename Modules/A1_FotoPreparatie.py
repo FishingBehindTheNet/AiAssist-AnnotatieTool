@@ -185,8 +185,8 @@ def FotoPreparatie():
     #Functie voor het aanroepen en afronden van de functies voor het ordenen of segmenteren van foto's
     def run(Button):
         #Maakt een eindscherm voor het infomeren over de nieuwe folder locaties
-        ImageLocation = os.path.join(Q_UIparts.ProjectPicker.value, f"Data\\Annoteren\\{Q_UIparts.DataNaamInput.value}\\images")
-        LabelLocation = os.path.join(Q_UIparts.ProjectPicker.value, f"Data\\Annoteren\\{Q_UIparts.DataNaamInput.value}\\labels")
+        ImageLocation = os.path.join(Q_UIparts.ProjectPicker.value, rf"Data/Annoteren/{Q_UIparts.DataNaamInput.value}/images")
+        LabelLocation = os.path.join(Q_UIparts.ProjectPicker.value, rf"Data/Annoteren/{Q_UIparts.DataNaamInput.value}/labels")
         SuccesScherm = widgets.HTML(
             value=f"""
             <style>

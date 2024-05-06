@@ -9,16 +9,23 @@ import os
 ProjectName = widgets.HTML("<b>Selecteer een project folder voor opslag:")
 
 #Maakt een lijst van de mappen in de folder waar de code gedraaid word, bij juist gebruik zijn dit alleen projecten (Module map word eruit gefilterd)
-opties = [
-    Dir for Dir in os.listdir(os.getcwd()) if os.path.isdir(Dir) and Dir != "Modules"
-]
+def ProjectMappen():
+    opties = [
+        Dir 
+        for Dir in os.listdir(os.getcwd()) 
+        if os.path.isdir(Dir) 
+        and not (Dir == "Modules" or Dir.startswith(".")) 
+    ]
 
-#Voegt een lege optie toe zodat het niet selecteren van een project herkend kan worden.
-opties.append("")
+    #Voegt een lege optie toe zodat het niet selecteren van een project herkend kan worden.
+    opties.append("")
+
+    return opties
+
 
 #Maakt delen van de interface aan
 ProjectPicker = widgets.Select(
-    options=opties,
+    options= ProjectMappen(),
     value="",
     tooltip="Selecteer een project",
     disabled=False,
@@ -55,11 +62,7 @@ def add(PlaceHolder):
         NewLocation = os.path.join(os.getcwd(), Project)
         if not os.path.exists(NewLocation):
             os.makedirs(NewLocation)
-            ProjectPicker.options = [
-                Dir
-                for Dir in os.listdir(os.getcwd())
-                if os.path.isdir(Dir) and Dir != "Modules"
-            ]
+            ProjectPicker.options = ProjectMappen()
             ProjectPicker.value = Project
 
 
@@ -105,7 +108,7 @@ LabelPick.show_only_dirs = True
 #Linkt de 2 widgets zodat wanneer je werkt met de folder organisatie van de pijplijn je maar een folder hoeft te zoeken en de andere automatie voor je klaar staat en je deze allen nog hoeft te accepteren
 @ImagePick.register_callback
 def LabelPickUpdate(PlaceHolder):
-    path = ImagePick.value.replace("images", "labels").removesuffix("Check Later\\")
+    path = ImagePick.value.replace("images", "labels").removesuffix("Check Later/")
     if os.path.exists(path):
         LabelPick.default_path = path
 

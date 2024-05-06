@@ -69,8 +69,8 @@ def train():
     # Laatste stap van de code. kopieert het nieuw getrainde model naar de Modellen map van 
     # het geselecteerde project, hernoemt het model en maakt een .ONNX versie naast de .pt versie. Dit word voor zowel het laatste als het beste model gedaan.
     def LastSteps(Project, ModelNaam):
-        Modellen = f"{Project}\\{ModellenMap}"
-        Resultaten = f"{Project}\\{ResultatenMap}\\{ModelNaam}\\training"
+        Modellen = f"{Project}/{ModellenMap}"
+        Resultaten = f"{Project}/{ResultatenMap}/{ModelNaam}/training"
             
         if not os.path.exists(Modellen):
             os.mkdir(Modellen)
@@ -78,7 +78,7 @@ def train():
         Best= os.path.join(
             os.getcwd(), 
             Resultaten,
-            "weights\\best.pt"
+            "weights/best.pt"
         )
         BestNew= os.path.join(
             os.getcwd(), 
@@ -92,7 +92,7 @@ def train():
         Last= os.path.join(
             os.getcwd(), 
             Resultaten, 
-            "weights\\last.pt"
+            "weights/last.pt"
         )
         LastNew= os.path.join(
             os.getcwd(), 
@@ -129,7 +129,7 @@ def train():
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     #Resume training specific code
     #------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    ResumeModel = FileChooser(filter_pattern="*.pt", title="<b>Selecteer hier het last.pt van het model waarvan je de training wil afmaken<br> uit je \"Model Resultaten\\{model naam}\\Training\\weights\" map:")
+    ResumeModel = FileChooser(filter_pattern="*.pt", title="<b>Selecteer hier het last.pt van het model waarvan je de training wil afmaken<br> uit je \"Model Resultaten/{model naam}/Training/weights\" map:")
 
     ResumeSubmit = widgets.Button(
         value = False,
@@ -148,8 +148,8 @@ def train():
             </div>
             """
         else:
-            project = str(ResumeModel.selected).split("\\")[-6]
-            name = str(ResumeModel.selected).split("\\")[-4]
+            project = str(ResumeModel.selected).split("/")[-6]
+            name = str(ResumeModel.selected).split("/")[-4]
 
             TrainView.close()
             display(RunningInfo)
@@ -217,7 +217,7 @@ def train():
                 batch = Batch.value,
                 imgsz = Size.value,
                 project = Q_UIparts.ProjectPicker.value,
-                name = f"{ResultatenMap}\\{ModelNaam.value}\\training",
+                name = f"{ResultatenMap}/{ModelNaam.value}/training",
                 exist_ok = False,           
             )
             LastSteps(Project=Q_UIparts.ProjectPicker.value, ModelNaam=ModelNaam.value)
@@ -287,7 +287,7 @@ def train():
                 batch = Batch.value,
                 imgsz = Size.value,
                 project = Q_UIparts.ProjectPicker.value,
-                name = f"{ResultatenMap}\\{ModelNaam.value}\\training",
+                name = f"{ResultatenMap}/{ModelNaam.value}/training",
                 exist_ok = False
             )
             LastSteps(Project=Q_UIparts.ProjectPicker.value, ModelNaam=ModelNaam.value)

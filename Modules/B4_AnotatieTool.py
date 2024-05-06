@@ -12,8 +12,8 @@ import os
 
 def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
     #Maakt een map aan om foto's in op te slaan voor latere referentie
-    if not os.path.exists(f"{ImageMap}\\Check Later") and not ImageMap.endswith("\Check Later"):
-        os.makedirs(f"{ImageMap}\\Check Later")
+    if not os.path.exists(f"{ImageMap}/Check Later") and not ImageMap.endswith("/Check Later"):
+        os.makedirs(f"{ImageMap}/Check Later")
 
     #laat de labels in zodat de Label.txt file niet onnodig geopend word.(Performance)
     label_names = load_label_names(Labels)
@@ -44,7 +44,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
             AiLabelsLocation = os.path.join(
                     os.getcwd(), 
                     ProjectName,
-                    "Data\\Voorspellingen\\labels",
+                    "Data/Voorspellingen/labels",
                     ImageToLabel(Files[HiddenProgress.value])
             )
 
@@ -61,7 +61,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
                 conf=0.2,
                 exist_ok=True,
                 project=ProjectName,
-                name="Data\\Voorspellingen",
+                name="Data/Voorspellingen",
                 augment=True,
             )
             
@@ -81,7 +81,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
                     conf=0.25,
                     exist_ok=True,
                     project=ProjectName,
-                    name="Data\\Voorspellingen",
+                    name="Data/Voorspellingen",
                     augment=True,
                 )
             #laadt de nieuwe annotaties in
@@ -170,7 +170,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
     Later = widgets.Button(
         value=False,
         description="Check Later",
-        tooltip=f"Kopier de image naar {ImageMap}\\Check Later",
+        tooltip=f"Kopier de image naar {ImageMap}/Check Later",
         button_style="info",
     )
 
@@ -187,6 +187,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
         classes=label_names,
         layout=widgets.Layout(width="650px"),
     )
+    
     # Laat de juiste BBoxen in
     BoxPicker("")
 
@@ -257,11 +258,11 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
     # voegt alle widgets samen voor gemakkelijk aanroepen. De IF functie filtered eruit welke versie van de interface weergegeven gaat worden.
     #   Als er geen model geselecteerd word verdwijnen de "Genereer annotaties" en "AI aan/uit"
     #   Als je foto's uit de check later map aan het bekijken bent verdwijnt de "Check Later" knop om te voorkomen dat er een rabbit hole aan mappen gegenereerd word
-    if Model and not ImageMap.endswith("\Check Later"):
+    if Model and not ImageMap.endswith("/Check Later"):
         model = YOLO(Model, task="detect")
         AiAnnotaties = os.path.join(
             ProjectName,
-            "Data\\Voorspellingen\\labels"
+            "Data/Voorspellingen/labels"
         )
         if not os.path.exists(AiAnnotaties):
             os.makedirs(AiAnnotaties)
@@ -286,10 +287,10 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
                 ])
             ])   
         ])
-    elif Model and ImageMap.endswith("\Check Later"):
+    elif Model and ImageMap.endswith("/Check Later"):
         model = YOLO(Model, task="detect")
         AiAnnotaties = os.path.join(
-            ProjectName, "Data\\Voorspellingen\\labels")
+            ProjectName, "Data/Voorspellingen/labels")
         if not os.path.exists(AiAnnotaties):
             os.makedirs(AiAnnotaties)
 
@@ -312,7 +313,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
                 ])
             ])   
         ])
-    elif ImageMap.endswith("\Check Later"):
+    elif ImageMap.endswith("/Check Later"):
         
         AnnoterenWidget = widgets.VBox([
             widgets.HBox([
@@ -437,7 +438,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
         image_file = Files[HiddenProgress.value]
         ProgressManager(Taak="del")
         os.remove(os.path.join(ImageMap, image_file))
-        if os.path.exists(os.path.join(Annotaties, ImageToLabel(image_file))) and not ImageMap.endswith("\Check Later"):
+        if os.path.exists(os.path.join(Annotaties, ImageToLabel(image_file))) and not ImageMap.endswith("/Check Later"):
             os.remove(os.path.join(Annotaties, ImageToLabel(image_file)))
         ImageView.image = encode_image(os.path.join(ImageMap, Files[HiddenProgress.value]))
         BoxPicker("")
@@ -450,6 +451,6 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
         ImageView.image = encode_image(os.path.join(ImageMap, Files[HiddenProgress.value]))
         BoxPicker("")
         shutil.copy2(os.path.join(ImageMap, image_file),
-                     f"{ImageMap}\\Check Later")
+                     f"{ImageMap}/Check Later")
 
     display(AnnoterenWidget)
