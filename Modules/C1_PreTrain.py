@@ -5,6 +5,9 @@ import random
 import shutil   
 import os
 
+Outputscherm = widgets.Output()
+display(Outputscherm)
+
 def AnnotationMove():
     #Maakt widgets om de data split in te voeren
     Val = widgets.FloatSlider(
@@ -112,7 +115,6 @@ def AnnotationMove():
                 """
             )
             #Sluit de interface en roept de functie aan die de bestanden gaat verplaatsen
-            View.close()
             preTrain(
                 Labels = Q_UIparts.LabelPick.selected_path,
                 Images = Q_UIparts.ImagePick.selected_path,
@@ -122,7 +124,10 @@ def AnnotationMove():
                 Testpercentage= (Test.value/100),#Moet gegeven worden in fracties
                 Move = Move#Word bepaalt door welke knop ingedrukt is.
             )
-            display(SuccesScherm)
+
+            with Outputscherm:
+                display(SuccesScherm)
+
         elif not Q_UIparts.ImagePick.selected_path:
             ErrorCode.value = """
                 <div style="text-align: right;">
@@ -202,8 +207,10 @@ def AnnotationMove():
             Kopieer
         ], layout= widgets.Layout(justify_content="flex-end"))
         ], layout= widgets.Layout(width='1010px'))
-    
-    display(View)
+
+    Outputscherm.clear_output(wait=True)    
+    with Outputscherm:
+        display(View)
 
 # de functie die de uiteindelijke data move uitvoert
 def preTrain(Labels, Images, ProjectName, ModelName, Validatiepercentage, Testpercentage, Move):
@@ -212,7 +219,10 @@ def preTrain(Labels, Images, ProjectName, ModelName, Validatiepercentage, Testpe
     #maakt een wachtscherm met progressbar zodat de gebruiker een indicatie heeft van hoelang het gaat duren
     ProgressBar = widgets.IntProgress(value=0, max=len(Imagefiles)-1, description="Progress:")
     WachtScherm = widgets.HTML(value = "<h3>Foto's en Labels worden verplaatst:</h3>")
-    display(WachtScherm, ProgressBar)
+
+    Outputscherm.clear_output(wait=True)
+    with Outputscherm:
+        display(WachtScherm, ProgressBar)
 
     #maakt een lijst van alle mappen die nodig zijn en maakt deze Aan als ze nog niet bestaan
     ModelDir = os.path.join(os.getcwd(), f"{ProjectName}/Data/Train en Test sets/{ModelName}")
@@ -287,8 +297,7 @@ def preTrain(Labels, Images, ProjectName, ModelName, Validatiepercentage, Testpe
                 for k, v in names.items():
                     c.write(f"  {k}: {v}\n")
     
-    WachtScherm.close()
-    ProgressBar.close()
+    Outputscherm.clear_output(wait=True)
     
     
 

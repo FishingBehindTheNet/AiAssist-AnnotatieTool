@@ -5,6 +5,10 @@ from ultralytics import YOLO
 import shutil
 import os
 
+Outputscherm = widgets.Output()
+display(Outputscherm)
+
+
 #vaste variabelen
 ModellenMap = "Modellen"
 ResultatenMap = "Model Resultaten"
@@ -151,8 +155,10 @@ def train():
             project = str(ResumeModel.selected).split("/")[-6]
             name = str(ResumeModel.selected).split("/")[-4]
 
-            TrainView.close()
-            display(RunningInfo)
+            Outputscherm.clear_output(wait=True)
+            with Outputscherm:
+                display(RunningInfo)
+
             model = YOLO(ResumeModel.selected)
             model.train(resume=True)
 
@@ -207,8 +213,10 @@ def train():
             """
 
         elif os.path.splitext(OudModel.selected)[-1] == ".pt":
-            TrainView.close()
-            display(RunningInfo)
+            Outputscherm.clear_output(wait=True)
+            with Outputscherm:
+                display(RunningInfo)
+
             from ultralytics import YOLO
             model = YOLO(OudModel.selected)
             model.train(
@@ -277,8 +285,10 @@ def train():
             </div>
             """
         else:
-            TrainView.close()
-            display(RunningInfo)
+            Outputscherm.clear_output(wait=True)
+            with Outputscherm:
+                display(RunningInfo)
+
             from ultralytics import YOLO
             model = YOLO(ScratchModel.value)
             model.train(
@@ -314,4 +324,6 @@ def train():
     TrainView = widgets.Tab(layout= widgets.Layout(width='900px'))
     TrainView.children = [NewModelView, ScratchModelView, Resume]
     TrainView.titles = ('Train vanaf model', 'Train van grond op', 'Resume training')
-    display(TrainView)
+    
+    with Outputscherm:
+        display(TrainView)

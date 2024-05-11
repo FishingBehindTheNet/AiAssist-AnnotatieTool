@@ -3,21 +3,26 @@ import ipywidgets as widgets
 from Modules import Q_UIparts
 from ultralytics import YOLO
 import os
+from pathlib import Path
+
+Outputscherm = widgets.Output()
+display(Outputscherm)
 
 #Test het model
 def ModelTest(Model, ConfigFile, DataPick, Project, Confidence):
     #Stript de naam van de dataset uit de config file
-    DataName = str(ConfigFile).split("/")[-1].removesuffix("_Config.yaml")
+    DataName = Path(ConfigFile).stem.removesuffix("_Config")
+    ModelPath = Path(Model)
 
     # Controleert of het geselecteerde model uit de modelresultaten map komt of uit de modellen map. 
     # Output de huidige naam van het model en een naam zoals veker gebruikt: {naam van het model}_{Versie van het model: "last" of "best"}
-    if str(Model).split("/")[-1] == "best.pt" or str(Model).split("/")[-1] == "last.pt":
-        ModelName = str(Model).split("/")[-4]
-        Versie = str(Model).split("/")[-1].removesuffix('.onnx').removesuffix('.pt')
+    if ModelPath.name == "best.pt" or ModelPath.name == "last.pt":
+        ModelName = str(Model).split("/").split("\\")[-4]
+        Versie = ModelPath.ste
         ModelVersion = f"{ModelName}_{Versie}"
     else:
-        ModelName = str(Model).split("/")[-1]
-        ModelVersion = str(Model).split("/")[-1].removesuffix('.onnx').removesuffix('.pt')
+        ModelName = ModelPath.name
+        ModelVersion = ModelPath.stem
 
     #Start het validatie process met de geselecteerde waarde, Laatste map word samengesteld uit de verschillende instelleningen zodat later te herleiden is welke instellingen gebruikt zijn.
     Model = YOLO(Model, task="detect")
@@ -168,5 +173,5 @@ def ModelValidation():
         Successcherm,
         ], layout= widgets.Layout(width='888px'))
     
-
-    display(View)
+    with Outputscherm:
+        display(View)

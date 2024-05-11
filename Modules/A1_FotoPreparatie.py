@@ -7,8 +7,14 @@ from itertools import product
 from ipyfilechooser import FileChooser
 from Modules.Q_UniversalFunction import ValidImageType, ImageToLabel
 
+OutputScherm = widgets.Output()
+display(OutputScherm)
+
+
 #Functie voor het opsnijden van foto's in segmenten
 def FotoSegmentatie(ImageMap, Output, Size, Overlap):
+    OutputScherm.clear_output(wait=True)
+
     #Maakt een lijst van alle afbeeldingen met ondersteunde bestandstype in de fotomap
     docs = [file for file in os.listdir(ImageMap) if ValidImageType(file)]
 
@@ -21,7 +27,9 @@ def FotoSegmentatie(ImageMap, Output, Size, Overlap):
     WachtScherm = widgets.HTML(
         value="<h3>Foto's worden gesegmenteerd:</h3>",
     )
-    display(WachtScherm, ProgressBar)
+
+    with OutputScherm:
+        display(WachtScherm, ProgressBar)
 
     #gaat door alle afbeeldingen in de lijst
     for Files in docs:
@@ -61,11 +69,12 @@ def FotoSegmentatie(ImageMap, Output, Size, Overlap):
             image.crop(box).save(out)
         image.close()
 
-    ProgressBar.close()
-    WachtScherm.close()
+    OutputScherm.clear_output(wait=True)
 
 #Functie voor het Verplaatsen van foto's volgens de data ordening 
 def FotoOrdening(ImageMap, OutputImage, LabelMap, OutputLabels):
+    OutputScherm.clear_output(wait=True)
+
     #Maakt een lijst van alle afbeeldingen met ondersteunde bestandstype in de fotomap
     docs = [file for file in os.listdir(ImageMap) if ValidImageType(file)]
 
@@ -78,7 +87,9 @@ def FotoOrdening(ImageMap, OutputImage, LabelMap, OutputLabels):
     WachtScherm = widgets.HTML(
         value="<h3>Foto's worden gekopieerd en geordend:</h3>",
     )
-    display(WachtScherm, ProgressBar)
+
+    with OutputScherm:
+        display(WachtScherm, ProgressBar)
 
     #Checkt of de aangegeven Label map de label vertalingen heeft en kopieert deze als ze bestaan.
     if LabelMap and os.path.exists(os.path.join(LabelMap, "Labels.txt")):
@@ -90,13 +101,13 @@ def FotoOrdening(ImageMap, OutputImage, LabelMap, OutputLabels):
         shutil.copy2(os.path.join(ImageMap, Files), OutputImage)
         if LabelMap and os.path.exists(os.path.join(LabelMap, ImageToLabel(Files))):
             shutil.copy2(os.path.join(LabelMap, ImageToLabel(Files)), OutputLabels)
-    
 
-    ProgressBar.close()
-    WachtScherm.close()
+    OutputScherm.clear_output(wait=True)
 
 #Deze functie maakt de interface van deze tool aan.
 def FotoPreparatie():
+    OutputScherm.clear_output(wait=True)
+    
     DataNaamTitel = widgets.HTML(value ="<b>Geef hier de naam voor de nieuwe dataset:")
 
     ImagePickTitelSM = widgets.HTML(value = "<br><b>Selecteer hier de folder met foto's die gesegmenteerd gaan worden:")
@@ -183,7 +194,7 @@ def FotoPreparatie():
     )
     
     #Functie voor het aanroepen en afronden van de functies voor het ordenen of segmenteren van foto's
-    def run(Button):
+    def Run(Button : str = ""):
         #Maakt een eindscherm voor het infomeren over de nieuwe folder locaties
         ImageLocation = os.path.join(Q_UIparts.ProjectPicker.value, rf"Data/Annoteren/{Q_UIparts.DataNaamInput.value}/images")
         LabelLocation = os.path.join(Q_UIparts.ProjectPicker.value, rf"Data/Annoteren/{Q_UIparts.DataNaamInput.value}/labels")
@@ -218,14 +229,16 @@ def FotoPreparatie():
                 if not os.path.exists(dir):
                     os.makedirs(dir)
 
-            ViewCompleet.close()
+            OutputScherm.clear_output(wait=True)
             FotoSegmentatie(
                 ImageMap=Q_UIparts.ImagePick.value,
                 Output=ImageLocation,
                 Size=int(Size.value),
                 Overlap=int(Size.value * (OverlapNum.value / 100)),
             )
-            display(SuccesScherm)
+
+            with OutputScherm:
+                display(SuccesScherm)
         
         elif Q_UIparts.ImagePick.selected and Q_UIparts.DataNaamInput.value and Q_UIparts.ProjectPicker.value and Button == "Orden":
             dirs_to_create = [ImageLocation, LabelLocation]
@@ -233,14 +246,17 @@ def FotoPreparatie():
                 if not os.path.exists(dir):
                     os.makedirs(dir)
 
-            ViewCompleet.close()
+            OutputScherm.clear_output(wait=True)
             FotoOrdening(
                 ImageMap=Q_UIparts.ImagePick.value,
                 LabelMap=Q_UIparts.LabelPick.selected,                
                 OutputImage=ImageLocation,
                 OutputLabels=LabelLocation
             )
-            display(SuccesScherm)
+
+            with OutputScherm:
+                display(SuccesScherm)
+
         elif not Q_UIparts.ImagePick.selected:
             ErrorCode.value = """
                 <div style="text-align: right;">
@@ -263,11 +279,11 @@ def FotoPreparatie():
     #2 functies voor het aanropen van de functie hierboven. Dit is losgetrokken zodat een extra variabele meegegeven kan worden.
     @Slice.on_click
     def RunSlice(PlaceHolder):
-        run("Slice")
+        Run(Button = "Slice")
 
     @Orden.on_click
     def RunOrden(PlaceHolder):
-        run("Orden")
+        Run(Button = "Orden")
 
     #Voegt alle widgets samen tot een samenhangende Interface    
     line = widgets.HTML(value="<hr>")
@@ -309,4 +325,5 @@ def FotoPreparatie():
     ViewCompleet.children = [ViewSM, ViewOR]
     ViewCompleet.titles = ('Foto segmentatie', 'Foto herordening')
 
-    display(ViewCompleet)
+    with OutputScherm:
+        display(ViewCompleet)

@@ -1,4 +1,5 @@
 from Modules.B2_FileChooser import FilePick
+from Modules.B4_AnotatieTool import OutputScherm
 from ipyfilechooser import FileChooser
 from Modules import Q_UIparts
 import ipywidgets as widgets
@@ -28,7 +29,7 @@ def Launch():
         # If functie om te checken of een model geselecteerd is en zo ja of er ook een project geselecteerd is en update de interface naar het volgende scherm
         if ModelFile.selected:
             if Q_UIparts.ProjectPicker.value:
-                ModelPicker.close()
+                OutputScherm.clear_output(wait=True)
                 FilePick(
                     Model=ModelFile.selected, ProjectName=Q_UIparts.ProjectPicker.value
                 )
@@ -39,7 +40,7 @@ def Launch():
                     </div>
                     """
         else:
-            ModelPicker.close()
+            OutputScherm.clear_output(wait=True)
             FilePick(
                 Model=ModelFile.selected, ProjectName=Q_UIparts.ProjectPicker.value
             )
@@ -58,5 +59,6 @@ def Launch():
         ], layout=widgets.Layout(justify_content="flex-end")
         )], layout=widgets.Layout(width="888px"),
     )
-
-    display(ModelPicker)
+    
+    with OutputScherm:
+        display(ModelPicker)

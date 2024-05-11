@@ -1,4 +1,5 @@
 from Modules.B3_LabelCheck import LabelCheck
+from Modules.B4_AnotatieTool import OutputScherm
 from Modules import Q_UIparts
 import ipywidgets as widgets
 import os
@@ -30,13 +31,13 @@ def FilePick(Model, ProjectName):
     @submit.on_click
     def SaveAndLaunch(PlaceHolder):
         if Q_UIparts.ImagePick.selected_path and Q_UIparts.LabelPick.selected_path:
+            OutputScherm.clear_output(wait=True)
             LabelCheck(
                 ImageMap=Q_UIparts.ImagePick.selected_path,
                 Annotaties=Q_UIparts.LabelPick.selected_path,
                 Model=Model,
                 ProjectName=ProjectName,
             )
-            DirsPicker.close()
         elif not Q_UIparts.ImagePick.selected_path:
             ErrorCode.value = """
                 <div style="text-align: right;">
@@ -62,4 +63,6 @@ def FilePick(Model, ProjectName):
         )], layout=widgets.Layout(width="888px"),
     )
 
-    display(DirsPicker)
+    OutputScherm.clear_output(wait=True)
+    with OutputScherm:
+        display(DirsPicker)

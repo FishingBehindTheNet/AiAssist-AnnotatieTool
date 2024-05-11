@@ -9,6 +9,8 @@ import shutil
 import gc
 import os
 
+OutputScherm = widgets.Output()
+display(OutputScherm)
 
 def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
     #Maakt een map aan om foto's in op te slaan voor latere referentie
@@ -453,4 +455,6 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
         shutil.copy2(os.path.join(ImageMap, image_file),
                      f"{ImageMap}/Check Later")
 
-    display(AnnoterenWidget)
+    OutputScherm.clear_output(wait=True)
+    with OutputScherm:
+        display(AnnoterenWidget)

@@ -1,4 +1,4 @@
-from Modules.B4_AnotatieTool import Annoteren
+from Modules.B4_AnotatieTool import Annoteren, OutputScherm
 from Modules.Q_LabelConvert import load_label_names
 from ultralytics import YOLO
 import ipywidgets as widgets
@@ -75,7 +75,7 @@ def LabelCheck(ImageMap, Annotaties, Model, ProjectName):
                 Model=Model,
                 ProjectName=ProjectName,
             )
-            LabelCheck.close()
+            OutputScherm.clear_output(wait=True)
         else:
             ErrorCode.value = """
                 <div style="text-align: right;">
@@ -147,8 +147,9 @@ def LabelCheck(ImageMap, Annotaties, Model, ProjectName):
 
             @PickL.on_click
             def PL(PlaceHolder):
-                Conflict.close()
-                display(LabelCheck)
+                OutputScherm.clear_output(wait=True)
+                with OutputScherm:
+                    display(LabelCheck)
 
             # PickM of Pick Model is de knop om de modellabels te gebruiken. 
             # De functie overschrijft Label.txt met de labels van het model. 
@@ -169,8 +170,9 @@ def LabelCheck(ImageMap, Annotaties, Model, ProjectName):
                             if labels:
                                 f.write(f"{labels}\n")
                 LabelLijst.value = LaadLabelLijst()
-                Conflict.close()
-                display(LabelCheck)
+                OutputScherm.clear_output(wait=True)
+                with OutputScherm:
+                    display(LabelCheck)
 
             ConflictTitel = widgets.HTML(
                 "<h1>Label check</h1><b>Er is een Conflict gevonden tussen Labels.txt in de label folder en de label van het gekozen model. Dit kan mogelijk gegenereerde annotaties verkeert labelen als de volgorde en/of betekenis van de labels verandert is. Negeer dit conflict (rode knop) of overschrijf de labels in Labels.txt en voorkom dit probleem in de toekomst (groene knop)</b>"
@@ -190,8 +192,13 @@ def LabelCheck(ImageMap, Annotaties, Model, ProjectName):
                 ], layout=widgets.Layout(justify_content="center", width="400px"),
                 )], layout=widgets.Layout(width="888px"),
             )
-            display(Conflict)
+
+            OutputScherm.clear_output(wait=True)
+            with OutputScherm:
+                display(Conflict)
         else:
-            display(LabelCheck)
+            with OutputScherm:
+                display(LabelCheck)
     else:
-        display(LabelCheck)
+        with OutputScherm:
+            display(LabelCheck)
