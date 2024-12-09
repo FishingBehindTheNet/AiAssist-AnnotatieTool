@@ -10,9 +10,15 @@ from Modules.Q_UniversalFunction import ValidImageType, ImageToLabel
 OutputScherm = widgets.Output()
 display(OutputScherm)
 
+RotationDic = {
+    'horizontale (L)': (True, -90), 
+    'horizontale (R)': (True, 90), 
+    'verticale (L)': (False, -90), 
+    'verticale (R)': (False, 90), 
+    'variabele': (None, None)}
 
 #Functie voor het opsnijden van foto's in segmenten
-def FotoSegmentatie(ImageMap, Output, Size, Overlap):
+def FotoSegmentatie(ImageMap, Output, Size, Overlap, LangsteZijde, Rotatie):
     OutputScherm.clear_output(wait=True)
 
     #Maakt een lijst van alle afbeeldingen met ondersteunde bestandstype in de fotomap
@@ -31,6 +37,8 @@ def FotoSegmentatie(ImageMap, Output, Size, Overlap):
     with OutputScherm:
         display(WachtScherm, ProgressBar)
 
+    RotatieHorizontaal, Draai = RotationDic[Rotatie]
+
     #gaat door alle afbeeldingen in de lijst
     for Files in docs:
         ProgressBar.value += 1
@@ -39,18 +47,30 @@ def FotoSegmentatie(ImageMap, Output, Size, Overlap):
         #Zonder deze stap kloppen de coördinaten in de naam niet en is het samenvoegen van annotaties voor een hele plaat onnodig moeilijk
         image = Image.open(os.path.join(ImageMap, Files))
         Width, Height = image.size
-        if Width > Height:
-            image = image.rotate(-90, expand=True)
-            Width, Height = image.size
+
+        if RotatieHorizontaal == True:
+            if Width < Height:
+                image = image.rotate(Draai, expand=True)
+                Width, Height = image.size
+        elif RotatieHorizontaal == False:
+            if Width > Height:
+                image = image.rotate(Draai, expand=True)
+                Width, Height = image.size        
 
         #Resized de foto zodat ongeacht de camera de foto's een constante grote hebben
-        Width64mp = 6936
-        if Width != Width64mp:
+        if Width>Height and Width != LangsteZijde:
             # Berekend de nieuwe hoogte van de foto zodat verhoudingen niet veranderd worden
-            Height64mp = int(Width64mp/Width*Height)
+            NewHeight = int(LangsteZijde/Width*Height)
 
             # Resize foto en bepaal de nieuwe hoogte en breedte
-            image = image.resize((Width64mp, Height64mp))
+            image = image.resize((LangsteZijde, NewHeight))
+            Width, Height = image.size
+        elif Width<Height and Height != LangsteZijde:
+            # Berekend de nieuwe hoogte van de foto zodat verhoudingen niet veranderd worden
+            NewWidth = int(LangsteZijde/Height*Width)
+
+            # Resize foto en bepaal de nieuwe hoogte en breedte
+            image = image.resize((NewWidth, LangsteZijde))
             Width, Height = image.size
 
         #Is later nodig voor de nieuwe namen
@@ -114,6 +134,24 @@ def FotoPreparatie():
     ImagePickTitelOR = widgets.HTML(value = "<br><b>Selecteer hier de folder met foto's die gekopieerd en herordend gaan worden:")
     LabelPickTitel = widgets.HTML(value = "<b>Niet verplicht!</b> Selecteer hier de folder met bijbehorende annotaties als je deze hebt:")
 
+    LiggingTitel = widgets.HTML(value = "De foto's hebben een ")
+    Ligging = widgets.Dropdown(
+        options= list(RotationDic.keys()), #-90 is links om
+        value='verticale (L)',
+        description="",
+        layout=widgets.Layout(width="120px")
+    )
+
+    LengteOGTitel = widgets.HTML(value = " ligging en een lange zijde van ")
+    LengteOG = widgets.BoundedIntText(
+        value=6936,
+        min=10,
+        max=20000,
+        step=1,
+        disabled=False,
+        layout = widgets.Layout(width = "60px")
+    )
+
     SizeTitel = widgets.HTML(value = "De foto's worden opgedeeld in vierkante segmenten met zijdes van ")
     Size = widgets.BoundedIntText(
         value=640,
@@ -163,6 +201,13 @@ def FotoPreparatie():
 
     #Een tussentijdse samenvoeging van widgets voor een overzichtelijker geheel
     TileSize = widgets.VBox([
+        widgets.HBox([
+            LiggingTitel, 
+            Ligging, 
+            LengteOGTitel,
+            LengteOG,
+            pixels
+        ]),
         widgets.HBox([
             SizeTitel, 
             Size, 
@@ -235,6 +280,8 @@ def FotoPreparatie():
                 Output=ImageLocation,
                 Size=int(Size.value),
                 Overlap=int(Size.value * (OverlapNum.value / 100)),
+                LangsteZijde=LengteOG.value,
+                Rotatie=Ligging.value
             )
 
             with OutputScherm:
