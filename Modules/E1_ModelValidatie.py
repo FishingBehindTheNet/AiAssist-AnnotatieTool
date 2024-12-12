@@ -1,12 +1,10 @@
 from ipyfilechooser import FileChooser
-import ipywidgets as widgets
+from Modules.Q_UIparts import OutputScherm
 from Modules import Q_UIparts
+import ipywidgets as widgets
 from ultralytics import YOLO
-import os
 from pathlib import Path
-
-Outputscherm = widgets.Output()
-display(Outputscherm)
+import os
 
 #Test het model
 def ModelTest(Model, ConfigFile, DataPick, Project, Confidence):
@@ -173,5 +171,6 @@ def ModelValidation():
         Successcherm,
         ], layout= widgets.Layout(width='888px'))
     
-    with Outputscherm:
+    OutputScherm.close()
+    with OutputScherm:
         display(View)

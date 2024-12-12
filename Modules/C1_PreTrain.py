@@ -1,12 +1,10 @@
 from Modules.Q_UniversalFunction import ImageToLabel
+from Modules.Q_UIparts import OutputScherm
 from Modules import Q_UIparts
 import ipywidgets as widgets
 import random
 import shutil   
 import os
-
-Outputscherm = widgets.Output()
-display(Outputscherm)
 
 def AnnotationMove():
     #Maakt widgets om de data split in te voeren
@@ -64,6 +62,7 @@ def AnnotationMove():
             tooltip="Start de code: Verplaatst alle foto's MET een annotatie in de label folder.",
             layout = widgets.Layout(width = "80px")
             )
+    
     @Verplaats.on_click
     def MoveV(PlaceHolder):
         run(Move=True)
@@ -75,6 +74,7 @@ def AnnotationMove():
             tooltip="Start de code: Kopieert alle foto's MET een annotatie in de label folder.",
             layout = widgets.Layout(width = "80px")
             )
+    
     @Kopieer.on_click
     def MoveK(Placeholder):
         run(Move=False)
@@ -125,7 +125,7 @@ def AnnotationMove():
                 Move = Move#Word bepaalt door welke knop ingedrukt is.
             )
 
-            with Outputscherm:
+            with OutputScherm:
                 display(SuccesScherm)
 
         elif not Q_UIparts.ImagePick.selected_path:
@@ -208,8 +208,8 @@ def AnnotationMove():
         ], layout= widgets.Layout(justify_content="flex-end"))
         ], layout= widgets.Layout(width='1010px'))
 
-    Outputscherm.clear_output(wait=True)    
-    with Outputscherm:
+    OutputScherm.close()    
+    with OutputScherm:
         display(View)
 
 # de functie die de uiteindelijke data move uitvoert
@@ -220,8 +220,8 @@ def preTrain(Labels, Images, ProjectName, ModelName, Validatiepercentage, Testpe
     ProgressBar = widgets.IntProgress(value=0, max=len(Imagefiles)-1, description="Progress:")
     WachtScherm = widgets.HTML(value = "<h3>Foto's en Labels worden verplaatst:</h3>")
 
-    Outputscherm.clear_output(wait=True)
-    with Outputscherm:
+    OutputScherm.clear_output(wait=True)
+    with OutputScherm:
         display(WachtScherm, ProgressBar)
 
     #maakt een lijst van alle mappen die nodig zijn en maakt deze Aan als ze nog niet bestaan
@@ -297,7 +297,7 @@ def preTrain(Labels, Images, ProjectName, ModelName, Validatiepercentage, Testpe
                 for k, v in names.items():
                     c.write(f"  {k}: {v}\n")
     
-    Outputscherm.clear_output(wait=True)
+    OutputScherm.clear_output(wait=True)
     
     
 

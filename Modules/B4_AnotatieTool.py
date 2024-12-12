@@ -1,22 +1,26 @@
 from Modules.Q_LabelConvert import YoloToWidget, WidgetToYolo, load_label_names
 from Modules.Q_UniversalFunction import ImageToLabel, ValidImageType
+from Modules.Q_UIparts import OutputScherm
 from jupyter_bbox_widget import BBoxWidget
 from ultralytics import YOLO
 import ipywidgets as widgets
+import logging
 import random
 import base64
 import shutil
 import gc
 import os
 
-OutputScherm = widgets.Output()
-display(OutputScherm)
+
+# Onderdrukt de printstatements van yolo
+logging.getLogger('ultralytics').setLevel(logging.WARNING)
+
 
 def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
     #Maakt een map aan om foto's in op te slaan voor latere referentie
     if not os.path.exists(f"{ImageMap}/Check Later") and not ImageMap.endswith("/Check Later"):
         os.makedirs(f"{ImageMap}/Check Later")
-
+    
     #laat de labels in zodat de Label.txt file niet onnodig geopend word.(Performance)
     label_names = load_label_names(Labels)
 
@@ -56,7 +60,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
             if os.path.exists(AiLabelsLocation):
                 os.remove(AiLabelsLocation)
             
-            #genereert de nieuwe annotaties
+            # genereert de nieuwe annotaties
             model.predict(
                 ImageLocation,
                 save_txt=True,
@@ -65,8 +69,9 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
                 project=ProjectName,
                 name="Data/Voorspellingen",
                 augment=True,
+                verbose=False
             )
-            
+
             #laadt de nieuwe annotaties in
             ImageView.bboxes = YoloToWidget(
                 ImageMap=ImageMap,
@@ -85,6 +90,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
                     project=ProjectName,
                     name="Data/Voorspellingen",
                     augment=True,
+                    verbose=False
                 )
             #laadt de nieuwe annotaties in
             ImageView.bboxes = YoloToWidget(
@@ -365,7 +371,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
             AiAssist.button_style = ""
             BoxPicker("")
     
-    AiAssist.observe(on_button_clicked)
+    AiAssist.observe(on_button_clicked, names="value")
 
     #Functie verantwoordelijk voor het updaten van het imagenummer waarmee de rest van de functies de fotonaam kunnen vinden in de "Files" list
     def ProgressManager(Taak):

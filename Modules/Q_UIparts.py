@@ -3,6 +3,13 @@ import ipywidgets as widgets
 import os
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------
+# OutputScreen
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Simpel maar gecentreerd aangemaakt zodat display niet afhankelijk is van laatste script in een process
+OutputScherm = widgets.Output()
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------
 # Project picker
 # --------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -108,16 +115,18 @@ LabelPick.show_only_dirs = True
 #Linkt de 2 widgets zodat wanneer je werkt met de folder organisatie van de pijplijn je maar een folder hoeft te zoeken en de andere automatie voor je klaar staat en je deze allen nog hoeft te accepteren
 @ImagePick.register_callback
 def LabelPickUpdate(PlaceHolder):
-    path = ImagePick.value.replace("images", "labels").removesuffix("Check Later/")
-    if os.path.exists(path):
-        LabelPick.default_path = path
+    if "images" in ImagePick.selected:
+        path = ImagePick.selected.replace("images", "labels").removesuffix("Check Later/")
+        if os.path.exists(path):
+            LabelPick.default_path = path
 
 
 @LabelPick.register_callback
 def ImagePickUpdate(PlaceHolder):
-    path = LabelPick.value.replace("labels", "images")
-    if os.path.exists(path):
-        ImagePick.default_path = path
+    if "labels" in LabelPick.selected:
+        path = LabelPick.selected.replace("labels", "images")
+        if os.path.exists(path):
+            ImagePick.default_path = path
 
 #Bouwt de interface op
 FilePickInterface = widgets.VBox([ImagePickTitel, ImagePick, LabelPickTitel, LabelPick])

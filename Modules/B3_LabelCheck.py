@@ -1,4 +1,5 @@
-from Modules.B4_AnotatieTool import Annoteren, OutputScherm
+from Modules.B4_AnotatieTool import Annoteren
+from Modules.Q_UIparts import OutputScherm
 from Modules.Q_LabelConvert import load_label_names
 from ultralytics import YOLO
 import ipywidgets as widgets

@@ -3,12 +3,10 @@ import shutil
 from PIL import Image
 import ipywidgets as widgets
 from Modules import Q_UIparts
+from Modules.Q_UIparts import OutputScherm
 from itertools import product
 from ipyfilechooser import FileChooser
 from Modules.Q_UniversalFunction import ValidImageType, ImageToLabel
-
-OutputScherm = widgets.Output()
-display(OutputScherm)
 
 RotationDic = {
     'horizontale (L)': (True, -90), 
@@ -19,7 +17,6 @@ RotationDic = {
 
 #Functie voor het opsnijden van foto's in segmenten
 def FotoSegmentatie(ImageMap, Output, Size, Overlap, LangsteZijde, Rotatie):
-    OutputScherm.clear_output(wait=True)
 
     #Maakt een lijst van alle afbeeldingen met ondersteunde bestandstype in de fotomap
     docs = [file for file in os.listdir(ImageMap) if ValidImageType(file)]
@@ -126,7 +123,6 @@ def FotoOrdening(ImageMap, OutputImage, LabelMap, OutputLabels):
 
 #Deze functie maakt de interface van deze tool aan.
 def FotoPreparatie():
-    OutputScherm.clear_output(wait=True)
     
     DataNaamTitel = widgets.HTML(value ="<b>Geef hier de naam voor de nieuwe dataset:")
 
@@ -372,5 +368,6 @@ def FotoPreparatie():
     ViewCompleet.children = [ViewSM, ViewOR]
     ViewCompleet.titles = ('Foto segmentatie', 'Foto herordening')
 
+    OutputScherm.close()
     with OutputScherm:
         display(ViewCompleet)

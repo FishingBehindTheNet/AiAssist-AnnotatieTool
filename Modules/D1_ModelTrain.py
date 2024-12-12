@@ -1,12 +1,11 @@
+
+from Modules import Q_UIparts, Q_UniversalFunction
+from Modules.Q_UIparts import OutputScherm
 from ipyfilechooser import FileChooser
 import ipywidgets as widgets
-from Modules import Q_UIparts, Q_UniversalFunction
 from ultralytics import YOLO
 import shutil
 import os
-
-Outputscherm = widgets.Output()
-display(Outputscherm)
 
 
 #vaste variabelen
@@ -155,8 +154,8 @@ def train():
             project = str(ResumeModel.selected).split("/")[-6]
             name = str(ResumeModel.selected).split("/")[-4]
 
-            Outputscherm.clear_output(wait=True)
-            with Outputscherm:
+            OutputScherm.clear_output(wait=True)
+            with OutputScherm:
                 display(RunningInfo)
 
             model = YOLO(ResumeModel.selected)
@@ -213,8 +212,8 @@ def train():
             """
 
         elif os.path.splitext(OudModel.selected)[-1] == ".pt":
-            Outputscherm.clear_output(wait=True)
-            with Outputscherm:
+            OutputScherm.clear_output(wait=True)
+            with OutputScherm:
                 display(RunningInfo)
 
             from ultralytics import YOLO
@@ -285,8 +284,8 @@ def train():
             </div>
             """
         else:
-            Outputscherm.clear_output(wait=True)
-            with Outputscherm:
+            OutputScherm.clear_output(wait=True)
+            with OutputScherm:
                 display(RunningInfo)
 
             from ultralytics import YOLO
@@ -325,5 +324,6 @@ def train():
     TrainView.children = [NewModelView, ScratchModelView, Resume]
     TrainView.titles = ('Train vanaf model', 'Train van grond op', 'Resume training')
     
-    with Outputscherm:
+    OutputScherm.close()
+    with OutputScherm:
         display(TrainView)

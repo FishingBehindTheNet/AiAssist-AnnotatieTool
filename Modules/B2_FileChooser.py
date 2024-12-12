@@ -1,5 +1,5 @@
 from Modules.B3_LabelCheck import LabelCheck
-from Modules.B4_AnotatieTool import OutputScherm
+from Modules.Q_UIparts import OutputScherm
 from Modules import Q_UIparts
 import ipywidgets as widgets
 import os

@@ -1,5 +1,5 @@
 from Modules.B2_FileChooser import FilePick
-from Modules.B4_AnotatieTool import OutputScherm
+from Modules.Q_UIparts import OutputScherm
 from ipyfilechooser import FileChooser
 from Modules import Q_UIparts
 import ipywidgets as widgets
@@ -7,6 +7,7 @@ import os
 
 
 def Launch():
+    OutputScherm.clear_output(wait=False)
     Titel = widgets.HTML("<h1>Model keuze (Niet verplicht!)")
 
     # Roept een widget aan die fungeert als interface om Folder locaties aan te vragen
@@ -60,5 +61,6 @@ def Launch():
         )], layout=widgets.Layout(width="888px"),
     )
     
+    OutputScherm.close()
     with OutputScherm:
         display(ModelPicker)

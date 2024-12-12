@@ -23,6 +23,7 @@ def ValidImageType(ImageName):
 
 # Reloads local modules so widget.observe and widget.on_click wil work on rerun of cell
 def SoftReset(PlaceHolder = None):
+
     # Step 1: Identify all modules that start with 'LocalModuleFolder' in sys.modules
     modules_to_reload = [module for module in sys.modules if module.startswith(LocalModuleFolder)]
 
