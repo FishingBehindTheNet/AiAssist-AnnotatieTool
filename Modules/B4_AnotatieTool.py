@@ -85,7 +85,7 @@ def Annoteren(ImageMap, Annotaties, Labels, Model, ProjectName):
                 model.predict(
                     ImageLocation,
                     save_txt=True,
-                    conf=0.25,
+                    conf=0.2,
                     exist_ok=True,
                     project=ProjectName,
                     name="Data/Voorspellingen",
