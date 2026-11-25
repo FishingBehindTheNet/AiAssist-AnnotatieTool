@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24534044.svg)](https://doi.org/10.5281/zenodo.24534044)
+[![RSD](https://img.shields.io/badge/RSD-aiassist--annotatietool-00a3e3)](https://research-software-directory.org/software/aiassist-annotatietool)
 # AiAssist-AnnotatieTool
 
 Dit notebook is gemaakt als een pijplijn voor het annoteren en het maken van modellen voor gebruik bij AI-assisted annoteren. Het idee hierbij is niet dat een complete dataset geannoteerd wordt voordat het eerste model getraind wordt, maar in plaats daarvan periodiek een model getraind wordt, dat daarna gebruikt kan worden om te helpen bij het annoteren van de rest van de dataset. Momenteel werkt de code voor .PNG-, .JPEG- en .JPG-bestanden. Op verzoek kunnen deze of andere functies worden aangepast of uitgebreid. Voor vragen, verzoeken of bugs kun je contact opnemen via de GitHub issue tracker.
