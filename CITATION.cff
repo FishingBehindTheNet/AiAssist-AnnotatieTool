@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Barten"
+  given-names: "Sjoerd"
+  orcid: "https://orcid.org/0009-0003-1353-2313"
+title: "AiAssist-AnnotatieTool"
+version: 1.0.0
+date-released: 2025-02-07
+license: MIT
+url: "https://github.com/FishingBehindTheNet/AiAssist-AnnotatieTool"
